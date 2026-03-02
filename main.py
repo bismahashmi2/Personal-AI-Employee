@@ -1,35 +1,51 @@
+import os
 import time
-from pathlib import Path
-from watchdog.observers import Observer
-from watchdog.events import FileSystemEventHandler
 
-VAULT_PATH = Path(".")
-INBOX_PATH = VAULT_PATH / "Inbox"
-NEEDS_ACTION_PATH = VAULT_PATH / "Needs_Action"
+VAULT_PATH = "/mnt/d/Code/hackathon0/AI_Employee_Vault"
 
-class InboxHandler(FileSystemEventHandler):
-    def on_created(self, event):
-        if not event.is_directory:
-            file_path = Path(event.src_path)
-            task_name = file_path.stem
+INBOX = os.path.join(VAULT_PATH, "Inbox")
+NEEDS_ACTION = os.path.join(VAULT_PATH, "Needs_Action")
+DONE = os.path.join(VAULT_PATH, "Done")
+LOGS = os.path.join(VAULT_PATH, "Logs")
 
-            new_task = NEEDS_ACTION_PATH / f"{task_name}.md"
-            new_task.write_text(f"# Task: {task_name}\n\nStatus: Needs Action\n")
 
-            print(f"Created task file: {new_task}")
+def log(message):
+    with open(os.path.join(LOGS, "watcher.log"), "a") as f:
+        f.write(message + "\n")
+    print(message)
+
+
+def process_file(filename):
+    if not filename.endswith(".txt"):
+        return
+
+    input_path = os.path.join(INBOX, filename)
+    output_filename = filename.replace(".txt", ".md")
+    output_path = os.path.join(NEEDS_ACTION, output_filename)
+
+    with open(input_path, "r") as f:
+        content = f.read()
+
+    md_content = f"# Task: {filename}\n\n{content}"
+
+    with open(output_path, "w") as f:
+        f.write(md_content)
+
+    # Move original file to Done
+    os.rename(input_path, os.path.join(DONE, filename))
+
+    log(f"Processed and moved to Done: {filename}")
+
+
+def watch():
+    log("Watcher started...")
+
+    while True:
+        files = os.listdir(INBOX)
+        for file in files:
+            process_file(file)
+        time.sleep(5)
+
 
 if __name__ == "__main__":
-    event_handler = InboxHandler()
-    observer = Observer()
-    observer.schedule(event_handler, str(INBOX_PATH), recursive=False)
-    observer.start()
-
-    print("Watcher is running... Press Ctrl+C to stop.")
-
-    try:
-        while True:
-            time.sleep(1)
-    except KeyboardInterrupt:
-        observer.stop()
-
-    observer.join()
+    watch()

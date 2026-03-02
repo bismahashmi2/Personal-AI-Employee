@@ -1,24 +1,20 @@
 {
   "main": {
-    "id": "98c79f7eb4e85c6e",
+    "id": "2969ef2dd183b000",
     "type": "split",
     "children": [
       {
-        "id": "0fece7c8afb8517e",
+        "id": "8b6e6a7d3823a364",
         "type": "tabs",
         "children": [
           {
-            "id": "f4e20a40e7620026",
+            "id": "2e74bcc8bfb5239d",
             "type": "leaf",
             "state": {
-              "type": "markdown",
-              "state": {
-                "file": "Needs_Action/test_task.md",
-                "mode": "source",
-                "source": false
-              },
+              "type": "empty",
+              "state": {},
               "icon": "lucide-file",
-              "title": "test_task"
+              "title": "New tab"
             }
           }
         ]
@@ -27,15 +23,15 @@
     "direction": "vertical"
   },
   "left": {
-    "id": "13b541ead3899094",
+    "id": "4b472786eff25a03",
     "type": "split",
     "children": [
       {
-        "id": "15ad390d3de56001",
+        "id": "73ca25a0f92d1fe9",
         "type": "tabs",
         "children": [
           {
-            "id": "373a2de073d9ef7a",
+            "id": "2bfd892c29cbef24",
             "type": "leaf",
             "state": {
               "type": "file-explorer",
@@ -48,7 +44,7 @@
             }
           },
           {
-            "id": "2105b222551a7ad6",
+            "id": "9b999bb919e25bcd",
             "type": "leaf",
             "state": {
               "type": "search",
@@ -65,7 +61,7 @@
             }
           },
           {
-            "id": "5ca55a6ef287a6cd",
+            "id": "2e887c35b4fb9d01",
             "type": "leaf",
             "state": {
               "type": "bookmarks",
@@ -81,15 +77,15 @@
     "width": 300
   },
   "right": {
-    "id": "dbaf083323291e46",
+    "id": "804bf4872aa56a61",
     "type": "split",
     "children": [
       {
-        "id": "4e1f5afe1e616b3d",
+        "id": "86dce09442387ba5",
         "type": "tabs",
         "children": [
           {
-            "id": "5315d531ff686896",
+            "id": "d6b0cd931fa092c3",
             "type": "leaf",
             "state": {
               "type": "backlink",
@@ -107,7 +103,7 @@
             }
           },
           {
-            "id": "ca5133a33fec949f",
+            "id": "38da402eccc3f295",
             "type": "leaf",
             "state": {
               "type": "outgoing-link",
@@ -120,7 +116,7 @@
             }
           },
           {
-            "id": "eb65c6979b32aa4a",
+            "id": "151ff58932718390",
             "type": "leaf",
             "state": {
               "type": "tag",
@@ -135,7 +131,7 @@
             }
           },
           {
-            "id": "bcd47b53ff9d8653",
+            "id": "d8fbfa559c3cfe32",
             "type": "leaf",
             "state": {
               "type": "all-properties",
@@ -149,7 +145,7 @@
             }
           },
           {
-            "id": "256a6412bb3447d2",
+            "id": "b2471cc57960c7a3",
             "type": "leaf",
             "state": {
               "type": "outline",
@@ -180,21 +176,8 @@
       "bases:Create new base": false
     }
   },
-  "active": "f4e20a40e7620026",
+  "active": "2e74bcc8bfb5239d",
   "lastOpenFiles": [
-    "Inbox/test_task.txt",
-    "Dashboard.md",
-    "Done/test_task.txt",
-    "Company_Handbook.md",
-    "Business_Goals.md",
-    "Plans/client_request_plan.md",
-    "Needs_Action/test_task.md",
-    "Needs_Action/client_request.md",
-    "README.md",
-    "Inbox/test.txt",
-    "uv.lock",
-    "pyproject.toml",
-    "main.py",
-    "skills-lock.json"
+    "graph.json"
   ]
 }

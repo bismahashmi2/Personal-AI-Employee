@@ -1,13 +1,4 @@
-# AI Employee Dashboard
+# Dashboard
 
-## Status
-- Pending Actions: 0
-- Pending Approvals: 0
-- Completed Today: 0
-
-## Recent Activity
-(No activity yet)
-
-## System Health
-- Watchers: Not Running
-- Claude: Not Running
+- [[Needs_Action/test_task.md]]
+- [[Plans/Test_Plan.md]]

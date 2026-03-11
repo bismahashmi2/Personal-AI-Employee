@@ -1,0 +1,67 @@
+# WhatsApp Watcher Dependencies
+# Playwright for web automation
+playwright==1.40.0
+
+# Base watcher dependencies (these should be in the main project)
+watchdog==2.3.0
+
+# For logging
+python-dotenv==1.0.0
+
+# Additional dependencies for the project
+# google-auth==2.24.0
+google-auth-oauthlib==1.1.0
+google-auth-httplib2==0.1.1
+google-api-python-client==2.118.0
+
+# For the WhatsApp watcher specifically
+# Note: Playwright MCP server handles the browser automation
+# Additional packages may be needed for the specific implementation
+pathlib2==2.3.7
+
+# For better error handling and debugging
+ipython==8.17.2
+
+# For time-based operations
+pytz==2023.3
+
+# For file operations
+pyyaml==6.0.1
+
+# For HTTP requests if needed
+requests==2.31.0
+
+# New dependencies for Silver Tier
+# Asyncio and async HTTP
+aiohttp==3.9.1
+
+# Database support
+sqlite3
+
+# Data analysis and statistics
+numpy==1.24.3
+pandas==2.1.4
+
+# JSON and configuration handling
+pyyaml==6.0.1
+jsonschema==4.19.0
+
+# Time and date handling
+pytz==2023.3
+python-dateutil==2.8.2
+
+# Logging and monitoring
+structlog==23.2.0
+prometheus-client==0.19.0
+
+# Error handling and retry logic
+tenacity==8.2.3
+
+# Security and cryptography
+cryptography==41.0.4
+pyjwt==2.8.0
+
+# Testing and development
+pytest==7.4.3
+pytest-asyncio==0.21.1
+black==23.11.0

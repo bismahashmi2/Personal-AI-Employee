@@ -1,0 +1,75 @@
+{
+  "name": "personal-ai-employee",
+  "version": "1.0.0",
+  "services": {
+    "filesystem-watcher": {
+      "command": "python",
+      "args": [
+        "filesystem_watcher.py",
+        "--host",
+        "localhost",
+        "--port",
+        "50051"
+      ],
+      "env": {
+        "WATCH_PATH": "/mnt/d/Code/hackathon0/AI_Employee_Vault",
+        "LOG_LEVEL": "INFO"
+      }
+    },
+    "gmail-watcher": {
+      "command": "python",
+      "args": [
+        "gmail_watcher.py",
+        "--host",
+        "localhost",
+        "--port",
+        "50052"
+      ],
+      "env": {
+        "CREDENTIALS_FILE": "credentials.json",
+        "TOKEN_FILE": "token.json",
+        "LOG_LEVEL": "INFO"
+      }
+    },
+    "whatsapp-watcher": {
+      "command": "python",
+      "args": [
+        "whatsapp_watcher.py",
+        "--host",
+        "localhost",
+        "--port",
+        "50053"
+      ],
+      "env": {
+        "LOG_LEVEL": "INFO"
+      }
+    }
+  },
+  "orchestrator": {
+    "command": "python",
+    "args": [
+      "orchestrator.py",
+      "--host",
+      "localhost",
+      "--port",
+      "50054"
+    ],
+    "env": {
+      "WATCHER_PORTS": "50051,50052,50053",
+      "LOG_LEVEL": "INFO"
+    }
+  },
+  "analytics": {
+    "command": "python",
+    "args": [
+      "analytics.py",
+      "--host",
+      "localhost",
+      "--port",
+      "50055"
+    ],
+    "env": {
+      "LOG_LEVEL": "INFO"
+    }
+  }
+}

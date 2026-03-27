@@ -1,0 +1,18 @@
+[Unit]
+Description=AI Employee Silver Tier System
+After=network.target
+
+[Service]
+Type=simple
+User=YOUR_USERNAME
+WorkingDirectory=/mnt/d/Code/hackathon0/AI_Employee_Vault
+Environment="PATH=/home/YOUR_USERNAME/.venv2/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin"
+EnvironmentFile=/mnt/d/Code/hackathon0/AI_Employee_Vault/.env
+ExecStart=/home/YOUR_USERNAME/.venv2/bin/python silver_tier_main.py --vault /mnt/d/Code/hackathon0/AI_Employee_Vault
+Restart=on-failure
+RestartSec=10
+StandardOutput=journal
+StandardError=journal
+
+[Install]
+WantedBy=multi-user.target

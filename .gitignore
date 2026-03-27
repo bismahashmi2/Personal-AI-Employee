@@ -37,6 +37,7 @@ config.yml
 config.yaml
 config.toml
 config.json
+mcp_config.json
 
 # Git
 .git/
@@ -56,4 +57,7 @@ __pycache__/
 pyvenv.cfg
 pip-log.txt
 pip-delete-this-directory.txt
+
+# Hackathon Document
+Personal AI Employee Hackathon 0_ Building Autonomous FTEs in 2026.md
 

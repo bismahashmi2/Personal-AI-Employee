@@ -4,29 +4,41 @@ import logging
 from pathlib import Path
 from datetime import datetime
 import re
+from playwright.sync_api import sync_playwright
 
 class WhatsAppWatcher(BaseWatcher):
-    def __init__(self, vault_path: str, check_interval: int = 60):
+    def __init__(self, vault_path: str, check_interval: int = 30, session_path: str = None):
         super().__init__(vault_path, check_interval)
-        self.session_file = Path.home() / ".whatsapp_session.json"
+        self.session_path = Path(session_path) if session_path else Path(vault_path) / 'whatsapp_session'
+        self.session_path.mkdir(exist_ok=True)
         self.processed_ids = set()
-        self.keywords = ['urgent', 'invoice', 'payment', 'help', 'emergency', 'important']
+        self.keywords = ['urgent', 'asap', 'invoice', 'payment', 'help', 'pricing', 'quote']
+        self.playwright = None
+        self.browser = None
+        self.context = None
+        self.page = None
 
     def check_for_updates(self) -> list:
         """Check WhatsApp Web for new messages containing keywords"""
         try:
-            # Check if we have a saved session
-            if not self.session_file.exists():
-                self.logger.info("No WhatsApp session found, need to login first")
-                return []
+            # Initialize browser if needed
+            if not self.page:
+                self._init_browser()
 
             # Navigate to WhatsApp Web
-            self.browser_navigate(url="https://web.whatsapp.com")
+            self.page.goto("https://web.whatsapp.com", timeout=30000)
 
-            # Wait for page to load
-            self.browser_wait_for(time=10)
+            # Wait for the chat list to load (wait for main panel)
+            try:
+                self.page.wait_for_selector('[data-testid="chat-list"]', timeout=30000)
+            except:
+                self.logger.warning("Chat list not found, might need to scan QR code")
+                return []
 
-            # Get chat list
+            # Give page a moment to stabilize
+            time.sleep(2)
+
+            # Get chat list with unread messages
             chats = self._get_chat_list()
             new_messages = []
 
@@ -44,11 +56,13 @@ class WhatsAppWatcher(BaseWatcher):
                             'message_id': message_id,
                             'timestamp': datetime.now().isoformat()
                         })
+                        self.logger.info(f"Found keyword message from {chat_name}: {last_message[:50]}...")
 
             return new_messages
 
         except Exception as e:
             self.logger.error(f"Error checking WhatsApp: {e}")
+            self._cleanup()
             return []
 
     def create_action_file(self, item) -> Path:
@@ -88,63 +102,77 @@ status: pending
     def _get_chat_list(self):
         """Extract chat list from WhatsApp Web"""
         try:
-            # Get the DOM structure
-            snapshot = self.browser_snapshot()
+            chats = []
 
-            # Extract chat information using JavaScript
-            script = """
-            async (page) => {
-                const chats = [];
+            # Get all chat panels (unread and recent)
+            chat_panels = self.page.query_selector_all('[data-testid="chat-list"] [role="row"]')
 
-                // Find chat elements
-                const chatElements = await page.$$('[role="grid"] [role="gridcell"]');
+            for panel in chat_panels[:20]:  # Limit to first 20 for performance
+                try:
+                    # Get chat name/title
+                    title_elem = panel.query_selector('[title]')
+                    name = title_elem.get_attribute('title') if title_elem else 'Unknown'
 
-                for (const element of chatElements) {
-                    // Get chat name
-                    const nameElement = await element.$('[title]');
-                    const name = nameElement ? await nameElement.getAttribute('title') : 'Unknown';
+                    # Get message preview
+                    msg_elem = panel.query_selector('.copyable-text, [data-pre-plain-text]')
+                    message = msg_elem.inner_text().strip() if msg_elem else ''
 
-                    // Get last message
-                    const messageElement = await element.$('div.copyable-text');
-                    let message = '';
-                    if (messageElement) {
-                        const messageText = await messageElement.textContent();
-                        if (messageText) {
-                            // Extract actual message content
-                            message = messageText.trim();
-                        }
-                    }
+                    # Generate a simple message ID
+                    message_id = f"{name}_{int(time.time())}"
 
-                    // Get message ID for tracking
-                    const messageId = await messageElement.getAttribute('data-id') || Date.now().toString();
+                    if name and message:
+                        chats.append({
+                            'name': name,
+                            'last_message': message,
+                            'message_id': message_id
+                        })
+                except:
+                    continue
 
-                    chats.push({
-                        name: name,
-                        last_message: message,
-                        message_id: messageId
-                    });
-                }
-
-                return chats;
-            }
-            """
-
-            result = self.browser_run_code(code=script)
-            return result.get('chats', [])
+            self.logger.info(f"Found {len(chats)} chats")
+            return chats
 
         except Exception as e:
             self.logger.error(f"Error getting chat list: {e}")
             return []
 
+    def _init_browser(self):
+        """Initialize Playwright browser with persistent context"""
+        try:
+            self.playwright = sync_playwright().start()
+            # Use persistent context to maintain WhatsApp session
+            self.context = self.playwright.chromium.launch_persistent_context(
+                user_data_dir=str(self.session_path),
+                headless=False,  # Set to True for headless
+                args=['--no-sandbox', '--disable-setuid-sandbox']
+            )
+            self.page = self.context.pages[0] if self.context.pages else self.context.new_page()
+            self.logger.info("Browser initialized")
+        except Exception as e:
+            self.logger.error(f"Failed to initialize browser: {e}")
+            raise
+
+    def _cleanup(self):
+        """Clean up browser resources"""
+        try:
+            if self.context:
+                self.context.close()
+            if self.playwright:
+                self.playwright.stop()
+            self.page = None
+            self.context = None
+            self.playwright = None
+        except:
+            pass
+
     def run(self):
-        """Main run loop with login handling"""
+        """Main run loop with error recovery"""
         self.logger.info(f'Starting WhatsAppWatcher')
 
         while True:
             try:
-                # Check if we need to login
-                if not self.session_file.exists():
-                    self._perform_login()
+                if not self.page:
+                    self._init_browser()
 
                 items = self.check_for_updates()
                 for item in items:
@@ -152,45 +180,14 @@ status: pending
 
             except Exception as e:
                 self.logger.error(f'Error: {e}')
-                # If login session expired, clear it
-                if 'login' in str(e).lower() or 'session' in str(e).lower():
-                    self.logger.info("Login session may have expired, clearing")
-                    if self.session_file.exists():
-                        self.session_file.unlink()
+                self._cleanup()
 
             time.sleep(self.check_interval)
 
     def _perform_login(self):
-        """Handle WhatsApp Web login flow"""
-        try:
-            self.logger.info("Navigating to WhatsApp Web for login")
-            self.browser_navigate(url="https://web.whatsapp.com")
-
-            # Wait for QR code to appear
-            self.browser_wait_for(time=15)
-
-            # Take screenshot for user to scan QR code
-            self.browser_take_screenshot(filename="whatsapp_qr_code.png")
-            self.logger.info("QR code captured. Please scan with your phone to login to WhatsApp Web.")
-
-            # Wait for login to complete
-            self.browser_wait_for(time=30)
-
-            # Save session
-            self._save_session()
-
-        except Exception as e:
-            self.logger.error(f"Login error: {e}")
-
-    def _save_session(self):
-        """Save session data for future use"""
-        try:
-            # This would typically save cookies or session data
-            # For now, we'll just create a marker file
-            self.session_file.touch()
-            self.logger.info("WhatsApp session saved")
-        except Exception as e:
-            self.logger.error(f"Error saving session: {e}")
+        """Handle WhatsApp Web login flow - DEPRECATED, use browser init"""
+        self.logger.info("WhatsApp login handled via persistent browser context")
+        self.logger.info("If WhatsApp requires authentication, please run with headless=False")
 
 if __name__ == "__main__":
     import sys

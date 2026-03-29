@@ -11,17 +11,14 @@
             "id": "f4e20a40e7620026",
             "type": "leaf",
             "state": {
-              "type": "canvas",
+              "type": "markdown",
               "state": {
-                "file": "Untitled.canvas",
-                "viewState": {
-                  "x": 0,
-                  "y": 0,
-                  "zoom": 0
-                }
+                "file": "Needs_Action/LINKEDIN_4_20260328_140911.md",
+                "mode": "source",
+                "source": false
               },
-              "icon": "lucide-layout-dashboard",
-              "title": "Untitled"
+              "icon": "lucide-file",
+              "title": "LINKEDIN_4_20260328_140911"
             }
           }
         ]
@@ -185,31 +182,39 @@
   },
   "active": "f4e20a40e7620026",
   "lastOpenFiles": [
+    "__pycache__/silver_tier_main.cpython-312.pyc",
+    "__pycache__/silver_tier_main.cpython-312.pyc.127560993045936",
+    "test_silver_tiers.py",
+    "test_silver_tiers.py.tmp.1924.1774693958439",
+    "Needs_Action/EMAIL_192d36afe8ce1a80.md",
+    "Needs_Action/EMAIL_19929698cdf9f477.md",
+    "Needs_Action/EMAIL_19af31e6e53024e9.md",
+    "Needs_Action/EMAIL_19c53773b2be07b6.md",
+    "Needs_Action/EMAIL_19c65d38abd724e4.md",
+    "Needs_Action/EMAIL_19cbc7e0b6703e53.md",
+    "Needs_Action/EMAIL_19d07c5df244aed7.md",
+    "__pycache__/gmail_watcher.cpython-312.pyc",
+    "__pycache__/gmail_watcher.cpython-312.pyc.139366932974640",
+    "silver_tier_main.py.tmp.1924.1774690851966",
+    "silver_tier_main.py.tmp.1924.1774690838972",
+    "silver_tier_main.py.tmp.1924.1774690505159",
+    "silver_tier_main.py.tmp.1924.1774689887160",
+    "silver_tier_main.py.tmp.1924.1774689870919",
+    "automation_setup/README.md",
+    "Business_Goals.md",
+    "Needs_Action/LINKEDIN_4_20260328_140911.md",
+    "Untitled.canvas",
     "Dashboard.md",
-    "__pycache__/approval_workflow.cpython-312.pyc",
-    "__pycache__/approval_workflow.cpython-312.pyc.129234923817904",
-    "__pycache__/claude_reasoning_loop.cpython-312.pyc",
-    "__pycache__/claude_reasoning_loop.cpython-312.pyc.129234923655872",
-    "__pycache__/linkedin_watcher.cpython-312.pyc",
-    "__pycache__/linkedin_watcher.cpython-312.pyc.129234936375728",
-    "__pycache__/whatsapp_watcher.cpython-312.pyc",
-    "__pycache__/whatsapp_watcher.cpython-312.pyc.129234936371248",
-    "tests/__pycache__/test_silver_tier.cpython-312.pyc",
-    "tests/__pycache__/test_silver_tier.cpython-312.pyc.129234938125392",
     "SILVER_TIER_DOCUMENTATION.md",
     "Personal AI Employee Hackathon 0_ Building Autonomous FTEs in 2026.md",
     "GOLD_TIER_IMPLEMENTATION_GUIDE.md",
     "GOLD_TIER_ARCHITECTURE_DOCUMENTATION.md",
-    "Untitled.canvas",
     "Needs_Action/client_request.md",
     "SILVER_TIER_SUMMARY.md",
     "Needs_Action/EMAIL_19cdc271a5f6b017.md",
     "SILVER_TIER_STATUS.md",
-    "Needs_Action/EMAIL_19c65d38abd724e4.md",
-    "Needs_Action/EMAIL_19af31e6e53024e9.md",
     "Needs_Action/test_task.md",
     "Company_Handbook.md",
-    "Business_Goals.md",
     "Plans/client_request_plan.md",
     "README.md"
   ]

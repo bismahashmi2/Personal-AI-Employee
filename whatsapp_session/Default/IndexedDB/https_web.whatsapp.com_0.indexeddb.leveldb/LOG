@@ -1,0 +1,16 @@
+2026/03/28-14:13:50.826 32db Reusing MANIFEST /mnt/d/Code/hackathon0/AI_Employee_Vault/whatsapp_session/Default/IndexedDB/https_web.whatsapp.com_0.indexeddb.leveldb/MANIFEST-000001
+2026/03/28-14:13:50.875 32db Recovering log #122
+2026/03/28-14:13:50.921 32db Reusing old log /mnt/d/Code/hackathon0/AI_Employee_Vault/whatsapp_session/Default/IndexedDB/https_web.whatsapp.com_0.indexeddb.leveldb/000122.log 
+2026/03/28-14:13:59.125 32fd Manual compaction at level-0 from '\x00Q\x00\x00\x00' @ 72057594037927935 : 1 .. '\x00R\x00\x00\x00' @ 0 : 0; will stop at (end)
+2026/03/28-14:13:59.175 32fb Manual compaction at level-0 from '\x00R\x00\x00\x00' @ 72057594037927935 : 1 .. '\x00S\x00\x00\x00' @ 0 : 0; will stop at (end)
+2026/03/28-14:13:59.226 32e4 Manual compaction at level-0 from '\x00U\x00\x00\x00' @ 72057594037927935 : 1 .. '\x00V\x00\x00\x00' @ 0 : 0; will stop at (end)
+2026/03/28-14:13:59.255 32db Level-0 table #128: started
+2026/03/28-14:13:59.383 32db Level-0 table #128: 192736 bytes OK
+2026/03/28-14:13:59.419 32db Delete type=0 #122
+2026/03/28-14:13:59.425 32db Manual compaction at level-0 from '\x00P\x00\x00\x00' @ 72057594037927935 : 1 .. '\x00Q\x00\x00\x00' @ 0 : 0; will stop at (end)
+2026/03/28-14:13:59.940 32de Compacting 1@1 + 1@2 files
+2026/03/28-14:13:59.989 32de Generated table #129@1: 33 keys, 758 bytes
+2026/03/28-14:13:59.990 32de Compacted 1@1 + 1@2 files => 758 bytes
+2026/03/28-14:14:00.006 32de compacted to: files[ 0 0 1 0 0 0 0 ]
+2026/03/28-14:14:00.051 32de Delete type=2 #125
+2026/03/28-14:14:00.053 32de Delete type=2 #128

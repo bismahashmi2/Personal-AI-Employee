@@ -2,7 +2,7 @@ import os
 import time
 import logging
 from pathlib import Path
-from whatsapp_watcher import WhatsAppWatcher
+from gmail_watcher import GmailWatcher
 from linkedin_watcher import LinkedInWatcher
 from mcp_email_server import EmailMCPServer
 from claude_reasoning_loop import ClaudeReasoningLoop
@@ -28,10 +28,19 @@ class SilverTierSystem:
         self.logger.info("Setting up Silver Tier components...")
 
         # Watchers
-        self.whatsapp_watcher = WhatsAppWatcher(str(self.vault_path),
-                                               session_path=str(self.vault_path / 'whatsapp_session'))
+        # Gmail Watcher - uses token.json for OAuth2 credentials
+        credentials_path = os.getenv('GMAIL_TOKEN_PATH', str(self.vault_path / 'token.json'))
+        try:
+            self.gmail_watcher = GmailWatcher(str(self.vault_path), credentials_path)
+            self.gmail_enabled = True
+        except Exception as e:
+            self.logger.warning(f"Gmail watcher could not be initialized: {e}")
+            self.gmail_enabled = False
+
+        # LinkedIn Watcher - uses demo mode if no API key provided
+        linkedin_api_key = os.getenv('LINKEDIN_API_KEY', '')
         self.linkedin_watcher = LinkedInWatcher(str(self.vault_path),
-                                               api_key=os.getenv('LINKEDIN_API_KEY', 'demo_key'))
+                                               api_key=linkedin_api_key if linkedin_api_key else None)
 
         # MCP Server
         self.email_mcp = EmailMCPServer(config_path=str(self.vault_path / 'mcp_config.json'))
@@ -51,16 +60,20 @@ class SilverTierSystem:
         """Start all watcher scripts"""
         self.logger.info("Starting watchers...")
 
-        # Start WhatsApp watcher in background
         import threading
-        whatsapp_thread = threading.Thread(target=self.whatsapp_watcher.run, daemon=True)
-        whatsapp_thread.start()
+
+        # Start Gmail watcher if enabled
+        if hasattr(self, 'gmail_enabled') and self.gmail_enabled:
+            gmail_thread = threading.Thread(target=self.gmail_watcher.run, daemon=True)
+            gmail_thread.start()
+            self.logger.info("Gmail watcher started")
 
         # Start LinkedIn watcher in background
         linkedin_thread = threading.Thread(target=self.linkedin_watcher.run, daemon=True)
         linkedin_thread.start()
+        self.logger.info("LinkedIn watcher started")
 
-        self.logger.info("Watchers started")
+        self.logger.info("Watchers started (WhatsApp disabled for privacy/demo)")
 
     def start_scheduler(self):
         """Start the scheduler"""

@@ -1,0 +1,186 @@
+ <!DOCTYPE html>
+  <html lang="en">
+  <head>
+      <meta charset="UTF-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <title>Digital FTE - AI Employee Automation</title>
+      <style>
+          * { box-sizing: border-box; margin: 0; padding: 0; }
+          body {
+              font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+              max-width: 900px;
+              margin: 0 auto;
+              padding: 40px 20px;
+              line-height: 1.6;
+              color: #333;
+              background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+              min-height: 100vh;
+          }
+          .container {
+              background: white;
+              border-radius: 12px;
+              padding: 40px;
+              box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+          }
+          h1 {
+              color: #0077b5;
+              font-size: 2.5em;
+              margin-bottom: 10px;
+              display: flex;
+              align-items: center;
+              gap: 15px;
+          }
+          .subtitle {
+              color: #666;
+              font-size: 1.2em;
+              margin-bottom: 30px;
+          }
+          .badge {
+              display: inline-block;
+              background: #0077b5;
+              color: white;
+              padding: 5px 15px;
+              border-radius: 20px;
+              font-size: 0.9em;
+              margin: 5px 5px 5px 0;
+          }
+          h2 {
+              color: #1a1a1a;
+              margin: 30px 0 15px;
+              padding-bottom: 10px;
+              border-bottom: 2px solid #0077b5;
+          }
+          ul { margin-left: 20px; margin-bottom: 20px; }
+          li { margin: 8px 0; }
+          .btn {
+              display: inline-block;
+              padding: 12px 24px;
+              background: #0077b5;
+              color: white;
+              text-decoration: none;
+              border-radius: 8px;
+              margin: 5px 10px 5px 0;
+              transition: background 0.3s;
+              font-weight: 500;
+          }
+          .btn:hover { background: #005885; }
+          .github-btn { background: #24292e; }
+          .github-btn:hover { background: #1a1e22; }
+          .features-grid {
+              display: grid;
+              grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+              gap: 15px;
+              margin: 20px 0;
+          }
+          .feature-card {
+              background: #f8f9fa;
+              padding: 20px;
+              border-radius: 8px;
+              border-left: 4px solid #0077b5;
+          }
+          .code-block {
+              background: #f4f4f4;
+              padding: 15px;
+              border-radius: 8px;
+              overflow-x: auto;
+              font-family: 'Consolas', 'Monaco', monospace;
+              font-size: 0.9em;
+          }
+          footer {
+              text-align: center;
+              margin-top: 40px;
+              color: #666;
+              font-size: 0.9em;
+          }
+          a { color: #0077b5; }
+      </style>
+  </head>
+  <body>
+      <div class="container">
+          <h1>🤖 Digital FTE</h1>
+          <p class="subtitle">AI Employee Automation System - Silver Tier</p>
+
+          <span class="badge">Hackathon Project</span>
+          <span class="badge">Python</span>
+          <span class="badge">Claude AI</span>
+          <span class="badge">OAuth 2.0</span>
+
+          <h2>What is Digital FTE?</h2>
+          <p>Digital FTE (Full Time Equivalent) is an autonomous AI employee that monitors communications, processes
+  tasks with human-in-the-loop approval, and manages business operations 24/7. Built with Claude Code for the AI
+  Employee Hackathon.</p>
+
+          <div style="text-align: center; margin: 30px 0;">
+              <a class="btn" href="https://github.com/bismahashmi2/Personal-AI-Employee">View on GitHub</a>
+              <a class="btn github-btn" href="https://bismahashmi2.vercel.app">My Portfolio</a>
+          </div>
+
+          <h2>Key Features</h2>
+          <div class="features-grid">
+              <div class="feature-card">
+                  <strong>📧 Gmail Integration</strong>
+                  <p>Monitor and process emails automatically via Gmail API</p>
+              </div>
+              <div class="feature-card">
+                  <strong>💼 LinkedIn Detection</strong>
+                  <p>Track trending topics and business opportunities</p>
+              </div>
+              <div class="feature-card">
+                  <strong>💬 WhatsApp Monitoring</strong>
+                  <p>Real-time message monitoring via Playwright</p>
+              </div>
+              <div class="feature-card">
+                  <strong>🤖 Claude AI Reasoning</strong>
+                  <p>Automatic plan generation and decision making</p>
+              </div>
+              <div class="feature-card">
+                  <strong>✅ Human-in-the-Loop</strong>
+                  <p>Secure approval workflow for sensitive actions</p>
+              </div>
+              <div class="feature-card">
+                  <strong>📊 Analytics Dashboard</strong>
+                  <p>Real-time KPIs in Obsidian Markdown</p>
+              </div>
+          </div>
+
+          <h2>Tech Stack</h2>
+          <ul>
+              <li><strong>Language:</strong> Python 3.12+</li>
+              <li><strong>AI Engine:</strong> Claude Code (Anthropic API)</li>
+              <li><strong>APIs:</strong> LinkedIn OAuth 2.0, Gmail API</li>
+              <li><strong>Automation:</strong> Playwright, MCP servers</li>
+              <li><strong>Storage:</strong> File-based messaging (Obsidian vault structure)</li>
+          </ul>
+
+          <h2>Quick Start</h2>
+          <div class="code-block">
+  # Clone and setup
+  cd AI_Employee_Vault
+  python -m venv .venv
+  source .venv/bin/activate  # Windows: .venv\Scripts\activate
+
+  # Install dependencies
+  pip install -r requirements.txt
+  playwright install chromium
+
+  # Configure
+  cp .env.example .env
+  # Edit .env with your API keys
+
+  # Run
+  python test_system.py
+  python silver_tier_main.py .
+          </div>
+
+          <h2>Architecture</h2>
+          <p>Modular design with watchers, reasoning loop, approval workflow, and MCP servers. All communication via
+  file-based messaging for auditability.</p>
+
+          <footer>
+              <p>Built with Claude Code • March 2025 • <a
+  href="https://github.com/bismahashmi2/Personal-AI-Employee">GitHub</a></p>
+              <p>Status: <strong>In Development</strong> (Silver Tier Complete)</p>
+          </footer>
+      </div>
+  </body>
+  </html>

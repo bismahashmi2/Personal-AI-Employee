@@ -55,11 +55,38 @@
 
   Configuration
 
-  1. Create .env file:
+  1. Create .env file (copy from .env.example and fill in):
   ANTHROPIC_API_KEY=your_key_here
   SMTP_HOST=smtp.gmail.com
   SMTP_USER=your-email@gmail.com
   SMTP_PASSWORD=your-app-password
+
+  ### LinkedIn OAuth (Optional - for LinkedIn posting)
+
+  First, get LinkedIn API credentials:
+
+  1. Go to [LinkedIn Developer Portal](https://www.linkedin.com/developers/)
+  2. Create an app or select your existing app
+  3. In **Settings** tab, note your **Client ID** and **Client Secret**
+  4. In **Auth** tab, add redirect URL: `http://localhost:8000/callback`
+  5. Request access to **"Share on LinkedIn"** product
+  6. Once approved, add these to `.env`:
+
+  ```
+  LINKEDIN_CLIENT_ID=your_client_id
+  LINKEDIN_CLIENT_SECRET=your_client_secret
+  ```
+
+  7. Run the OAuth setup:
+
+  ```bash
+  python linkedin_oauth_setup.py
+  ```
+
+  This will:
+  - Open your browser for LinkedIn authorization
+  - Start a local server on port 8000 to receive the callback
+  - Save the access token to `token.json`
 
   2. Ensure vault folders exist:
   mkdir -p {Needs_Action,Plans,Done,Pending_Approval,Approved,Rejected,Audits,Logs}

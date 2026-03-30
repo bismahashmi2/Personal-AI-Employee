@@ -37,10 +37,9 @@ class SilverTierSystem:
             self.logger.warning(f"Gmail watcher could not be initialized: {e}")
             self.gmail_enabled = False
 
-        # LinkedIn Watcher - uses demo mode if no API key provided
-        linkedin_api_key = os.getenv('LINKEDIN_API_KEY', '')
-        self.linkedin_watcher = LinkedInWatcher(str(self.vault_path),
-                                               api_key=linkedin_api_key if linkedin_api_key else None)
+        # LinkedIn Watcher - uses OAuth token if available, otherwise demo mode
+        linkedin_token = self._load_linkedin_token()
+        self.linkedin_watcher = LinkedInWatcher(str(self.vault_path), access_token=linkedin_token)
 
         # MCP Server
         self.email_mcp = EmailMCPServer(config_path=str(self.vault_path / 'mcp_config.json'))
@@ -55,6 +54,23 @@ class SilverTierSystem:
         self.approval_workflow = ApprovalWorkflow(str(self.vault_path))
 
         self.logger.info("Silver Tier components setup complete")
+
+    def _load_linkedin_token(self):
+        """Load LinkedIn OAuth access token from token.json"""
+        import json
+        from datetime import datetime
+        token_path = self.vault_path / 'token.json'
+        if token_path.exists():
+            try:
+                token_data = json.loads(token_path.read_text())
+                expires_at = datetime.fromisoformat(token_data.get('expires_at', ''))
+                if expires_at > datetime.now():
+                    return token_data['access_token']
+                else:
+                    self.logger.warning("LinkedIn token expired. Run linkedin_oauth_setup.py to refresh.")
+            except Exception as e:
+                self.logger.error(f"Error loading LinkedIn token: {e}")
+        return None
 
     def start_watchers(self):
         """Start all watcher scripts"""

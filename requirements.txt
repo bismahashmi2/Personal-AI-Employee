@@ -71,3 +71,7 @@ anthropic==0.34.0
 
 # Scheduling
 schedule==1.2.0
+
+# OAuth and web server for LinkedIn
+flask==3.0.0
+requests-oauthlib==1.3.1

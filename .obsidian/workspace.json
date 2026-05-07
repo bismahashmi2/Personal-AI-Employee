@@ -4,21 +4,17 @@
     "type": "split",
     "children": [
       {
-        "id": "0fece7c8afb8517e",
+        "id": "1efc1bbd406bd77d",
         "type": "tabs",
         "children": [
           {
-            "id": "f4e20a40e7620026",
+            "id": "909ff061e9be654d",
             "type": "leaf",
             "state": {
-              "type": "markdown",
-              "state": {
-                "file": "Needs_Action/LINKEDIN_4_20260328_140911.md",
-                "mode": "source",
-                "source": false
-              },
+              "type": "empty",
+              "state": {},
               "icon": "lucide-file",
-              "title": "LINKEDIN_4_20260328_140911"
+              "title": "New tab"
             }
           }
         ]
@@ -180,12 +176,23 @@
       "bases:Create new base": false
     }
   },
-  "active": "f4e20a40e7620026",
+  "active": "373a2de073d9ef7a",
   "lastOpenFiles": [
+    "IMPLEMENTATION_COMPLETE.md",
+    "IMPLEMENTATION_COMPLETE.md.tmp.1057.1778150527732",
+    "Done/SOCIAL_POST_1778149757.md",
+    "Done/SOCIAL_POST_1775464253.md",
+    "Approved/SOCIAL_POST_1778149757.md",
+    "LINKEDIN_AUTO_POSTING_GUIDE.md",
+    "LINKEDIN_AUTO_POSTING_GUIDE.md.tmp.1057.1778149053751",
+    "linkedin_auto_posting.py",
+    "linkedin_auto_posting.py.tmp.1057.1778148851027",
+    "linkedin_workflow_coordinator.py",
+    "linkedin_workflow_coordinator.py.tmp.1057.1778148809939",
+    "linkedin_post_executor.py",
+    "linkedin_post_executor.py.tmp.1057.1778148770038",
     "__pycache__/silver_tier_main.cpython-312.pyc",
     "__pycache__/silver_tier_main.cpython-312.pyc.127560993045936",
-    "test_silver_tiers.py",
-    "test_silver_tiers.py.tmp.1924.1774693958439",
     "Needs_Action/EMAIL_192d36afe8ce1a80.md",
     "Needs_Action/EMAIL_19929698cdf9f477.md",
     "Needs_Action/EMAIL_19af31e6e53024e9.md",
@@ -193,13 +200,6 @@
     "Needs_Action/EMAIL_19c65d38abd724e4.md",
     "Needs_Action/EMAIL_19cbc7e0b6703e53.md",
     "Needs_Action/EMAIL_19d07c5df244aed7.md",
-    "__pycache__/gmail_watcher.cpython-312.pyc",
-    "__pycache__/gmail_watcher.cpython-312.pyc.139366932974640",
-    "silver_tier_main.py.tmp.1924.1774690851966",
-    "silver_tier_main.py.tmp.1924.1774690838972",
-    "silver_tier_main.py.tmp.1924.1774690505159",
-    "silver_tier_main.py.tmp.1924.1774689887160",
-    "silver_tier_main.py.tmp.1924.1774689870919",
     "automation_setup/README.md",
     "Business_Goals.md",
     "Needs_Action/LINKEDIN_4_20260328_140911.md",
@@ -214,8 +214,6 @@
     "Needs_Action/EMAIL_19cdc271a5f6b017.md",
     "SILVER_TIER_STATUS.md",
     "Needs_Action/test_task.md",
-    "Company_Handbook.md",
-    "Plans/client_request_plan.md",
-    "README.md"
+    "Company_Handbook.md"
   ]
 }

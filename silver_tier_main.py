@@ -56,10 +56,10 @@ class SilverTierSystem:
         self.logger.info("Silver Tier components setup complete")
 
     def _load_linkedin_token(self):
-        """Load LinkedIn OAuth access token from token.json"""
+        """Load LinkedIn OAuth access token from linkedin_token.json"""
         import json
         from datetime import datetime
-        token_path = self.vault_path / 'token.json'
+        token_path = self.vault_path / 'linkedin_token.json'
         if token_path.exists():
             try:
                 token_data = json.loads(token_path.read_text())

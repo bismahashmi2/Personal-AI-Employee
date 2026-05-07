@@ -1,53 +1,93 @@
 
-  # Personal AI Employee - Silver Tier
+# Personal AI Employee - Silver Tier
 
-  An autonomous AI employee system built with Claude Code that monitors communications, processes tasks with
-  human-in-the-loop approval, and manages business operations 24/7.
+An autonomous AI employee system built with Claude Code that monitors communications, processes tasks with human-in-the-loop approval, and manages business operations 24/7.
 
-  ## Tier Declaration
+**🎯 Current Status: 95% Ready - LinkedIn OAuth Setup Required**
 
-  **Silver Tier** - Functional Assistant with autonomous monitoring, Claude reasoning, MCP integration, and approval
-  workflows.
+## Tier Declaration
 
-  ## Features
+**Silver Tier** - Functional Assistant with autonomous monitoring, Claude reasoning, MCP integration, and approval workflows.
 
-  - **Multi-Channel Monitoring**: WhatsApp, LinkedIn, Gmail, and filesystem watchers
-  - **Claude-Powered Reasoning**: Automatic plan generation from incoming tasks
-  - **Human-in-the-Loop**: Secure approval workflow for sensitive actions
-  - **Scheduled Automation**: Daily briefings, weekly audits, continuous processing
-  - **MCP Integration**: Email sending via Model Context Protocol
-  - **Analytics Dashboard**: Real-time KPIs and system health monitoring
-  - **Audit Logging**: Comprehensive security and compliance tracking
+## Features
 
-  ## Architecture
+- **Multi-Channel Monitoring**: Gmail, LinkedIn, and filesystem watchers
+- **Claude-Powered Reasoning**: Automatic plan generation from incoming tasks
+- **Human-in-the-Loop**: Secure approval workflow for sensitive actions
+- **LinkedIn Auto-Posting**: Automatically post business content to LinkedIn
+- **Scheduled Automation**: Daily briefings, weekly audits, continuous processing
+- **MCP Integration**: Email sending via Model Context Protocol
+- **Analytics Dashboard**: Real-time KPIs and system health monitoring
+- **Audit Logging**: Comprehensive security and compliance tracking
 
-  ┌─────────────┐     ┌─────────────┐     ┌─────────────┐
-  │   Watchers  │────▶│   Claude    │────▶│  Approval   │
-  │ (WhatsApp,  │     │  Reasoning  │     │  Workflow   │
-  │  LinkedIn)  │     │   Loop      │     │   (HITL)    │
-  └─────────────┘     └─────────────┘     └─────────────┘
-                                                          │
-  ┌─────────────┐     ┌─────────────┘                   ▼
-  │   MCP       │     │                          ┌─────────────┐
-  │  Servers    │◀────┘                          │    Vault    │
-  │ (Email, etc)│                                │ (Obsidian)  │
-  └─────────────┘                                └─────────────┘
+## Architecture
 
-  ## Quick Start
+```
+┌─────────────┐     ┌─────────────┐     ┌─────────────┐
+│   Watchers  │────▶│   Claude    │────▶│  Approval   │
+│  (Gmail,    │     │  Reasoning  │     │  Workflow   │
+│  LinkedIn)  │     │   Loop      │     │   (HITL)    │
+└─────────────┘     └─────────────┘     └─────────────┘
+                                                        │
+┌─────────────┐     ┌─────────────┘                   ▼
+│   MCP       │     │                          ┌─────────────┐
+│  Servers    │◀────┘                          │    Vault    │
+│ (Email, etc)│                                │ (Obsidian)  │
+└─────────────┘                                └─────────────┘
+```
 
-  ### Prerequisites
-  - Python 3.12+
-  - Playwright (for WhatsApp)
-  - Claude Code with API access
-  - SMTP credentials (for email)
+## 🚀 Quick Start (15 Minutes)
 
-  ### Installation
+### Step 1: Check System Status
 
-  ```bash
-  # Clone and setup
-  cd AI_Employee_Vault
-  python -m venv .venv
-  source .venv/bin/activate  # Windows: .venv\Scripts\activate
+```bash
+cd /mnt/d/Code/hackathon0/AI_Employee_Vault
+python3 check_hackathon_readiness.py
+```
+
+### Step 2: Complete LinkedIn OAuth Setup
+
+**This is the ONLY missing piece!**
+
+```bash
+./setup_linkedin_ngrok.sh
+```
+
+This automated script will:
+1. Ask for your ngrok authtoken (get from https://dashboard.ngrok.com)
+2. Start ngrok tunnel
+3. Guide you through LinkedIn Developer Portal setup
+4. Complete OAuth flow
+5. Test the connection
+
+**Time required:** 10-15 minutes
+
+### Step 3: Test LinkedIn Posting
+
+```bash
+python3 -c "from linkedin_watcher import LinkedInWatcher; w=LinkedInWatcher('.'); print('✅ Success!' if w.post_to_linkedin('Testing my AI Employee! 🤖 #AI #Automation') else '❌ Failed')"
+```
+
+### Step 4: Start Your AI Employee
+
+```bash
+python3 silver_tier_main.py .
+```
+
+## 📚 Documentation
+
+- **SETUP_SUMMARY.md** - Complete overview and troubleshooting
+- **QUICK_START.md** - Quick reference guide
+- **NGROK_LINKEDIN_SETUP.md** - Detailed LinkedIn OAuth instructions
+- **Personal AI Employee Hackathon 0...md** - Full hackathon requirements
+
+## Prerequisites
+
+- Python 3.12+
+- Claude Code with API access
+- LinkedIn Developer Account (for OAuth)
+- Gmail API credentials
+- ngrok account (free tier works)
 
   # Install dependencies
   pip install -r requirements.txt
@@ -86,7 +126,7 @@
   This will:
   - Open your browser for LinkedIn authorization
   - Start a local server on port 8000 to receive the callback
-  - Save the access token to `token.json`
+  - Save the access token to `linkedin_token.json`
 
   2. Ensure vault folders exist:
   mkdir -p {Needs_Action,Plans,Done,Pending_Approval,Approved,Rejected,Audits,Logs}

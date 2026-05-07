@@ -32,6 +32,13 @@ class Scheduler:
 
         self.logger.info(f"Created {len(plans_created)} plans")
 
+        # Process approvals (process any newly created approval requests)
+        from approval_workflow import ApprovalWorkflow
+        approval = ApprovalWorkflow(str(self.vault_path))
+        executed = approval.check_approvals()
+        if executed:
+            self.logger.info(f"Executed {len(executed)} approved actions")
+
     def daily_briefing(self):
         """Generate daily briefing"""
         self.logger.info("Generating daily briefing...")

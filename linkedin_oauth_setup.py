@@ -7,12 +7,23 @@ import os
 import json
 import secrets
 import webbrowser
+import logging
+import threading
+from pyngrok import ngrok
+import time
 from datetime import datetime, timedelta
 from pathlib import Path
 
 from flask import Flask, request, render_template_string
 import requests
 from requests_oauthlib import OAuth2Session
+
+# Set up logging
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
+
+# Get the directory where this script lives
+SCRIPT_DIR = Path(__file__).parent.resolve()
 
 # Load environment variables
 from dotenv import load_dotenv
@@ -24,13 +35,22 @@ app.secret_key = secrets.token_hex(16)
 # LinkedIn OAuth2 configuration
 CLIENT_ID = os.getenv('LINKEDIN_CLIENT_ID')
 CLIENT_SECRET = os.getenv('LINKEDIN_CLIENT_SECRET')
-REDIRECT_URI = "http://localhost:8000/callback"
+REDIRECT_URI = os.getenv('LINKEDIN_REDIRECT_URI', "http://localhost:8000/callback")
 
 # OAuth2 scopes needed
-SCOPE = ['w_member_social', 'r_liteprofile', 'r_emailaddress']
+# IMPORTANT: For personal posting only (Silver Tier):
+# - w_member_social: Post as member (available with Share on LinkedIn product)
+# - openid: OpenID Connect authentication
+# - profile: Access to profile information
+SCOPE = [
+    'openid',                   # OpenID Connect
+    'profile',                  # Profile access
+    'w_member_social',          # Post as member
+]
 
 # Store the auth code (in-memory, single user)
 auth_code = None
+token_saved = threading.Event()
 
 # HTML template for the callback page
 HTML_TEMPLATE = """
@@ -124,13 +144,21 @@ def callback():
             'created_at': datetime.now().isoformat(),
         }
 
-        # Save token to file
-        token_path = Path('token.json')
-        token_path.write_text(json.dumps(full_token, indent=2))
+        # Save token to file (use linkedin_token.json to avoid conflict with Gmail)
+        token_path = SCRIPT_DIR / 'linkedin_token.json'
+        try:
+            token_path.write_text(json.dumps(full_token, indent=2))
+            logger.info(f"Successfully wrote token to: {token_path}")
+        except Exception as write_error:
+            logger.error(f"Failed to write token file: {write_error}")
+            raise
 
-        print(f"✅ Access token saved to token.json")
+        print(f"✅ Access token saved to {token_path}")
         print(f"   Expires at: {expires_at.strftime('%Y-%m-%d %H:%M:%S')}")
         print(f"\n🎉 LinkedIn OAuth setup complete! You can now use the LinkedIn API.")
+
+        # Signal that token has been saved
+        token_saved.set()
 
     except Exception as e:
         print(f"❌ Error exchanging code: {e}")
@@ -168,9 +196,9 @@ def main():
         return
 
     # Check for existing token
-    token_path = Path('token.json')
+    token_path = SCRIPT_DIR / 'linkedin_token.json'
     if token_path.exists():
-        response = input("\n⚠️  token.json already exists. Overwrite? (y/N): ").strip().lower()
+        response = input("\n⚠️  linkedin_token.json already exists. Overwrite? (y/N): ").strip().lower()
         if response != 'y':
             print("Aborted.")
             return
@@ -180,17 +208,18 @@ def main():
     auth_url, state = get_auth_url()
     print(f"   URL: {auth_url}\n")
 
-    # Start Flask server in a thread
+    # Start Flask server
     print("2. Starting local server on http://localhost:8000/callback")
     print("   (Press Ctrl+C to cancel)\n")
 
-    import threading
-
     def run_flask():
-        app.run(host='localhost', port=8000, debug=False, use_reloader=False)
+        app.run(host='0.0.0.0', port=8000, debug=False, use_reloader=False)
 
     flask_thread = threading.Thread(target=run_flask, daemon=True)
     flask_thread.start()
+
+    # Give Flask a moment to start
+    time.sleep(2)
 
     # Open browser
     print("3. Opening browser for authorization...")
@@ -198,21 +227,25 @@ def main():
         webbrowser.open(auth_url)
     except Exception as e:
         print(f"   Could not open browser automatically: {e}")
-        print(f"   Please manually open this URL:\n   {auth_url}\n")
+        # WSL-specific guidance
+        print("\n   On WSL, you can also:")
+        print("   - Copy and paste this URL into your Windows browser:")
+        print(f"   {auth_url}")
+        print("   - Or run: explorer.exe \"{auth_url}\"")
+        print()
 
     print("4. Waiting for authorization... (check your browser)")
     print("=" * 60)
 
     # Keep main thread alive until token is received
     try:
-        while auth_code is None:
-            import time
-            time.sleep(1)
+        while not token_saved.is_set():
+            time.sleep(0.5)
     except KeyboardInterrupt:
         print("\n\n❌ OAuth setup cancelled by user.")
         return
 
-    print("\n✅ OAuth flow complete! token.json has been created.")
+    print("\n✅ OAuth flow complete! linkedin_token.json has been created.")
     print("   You can now close the Flask server (Ctrl+C).")
 
 

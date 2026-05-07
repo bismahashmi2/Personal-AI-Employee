@@ -3,6 +3,7 @@ import time
 import json
 from pathlib import Path
 from typing import Dict, Any, List
+import logging
 
 class ApprovalWorkflow:
     def __init__(self, vault_path: str):
@@ -11,12 +12,31 @@ class ApprovalWorkflow:
         self.approved = self.vault_path / 'Approved'
         self.rejected = self.vault_path / 'Rejected'
         self.done = self.vault_path / 'Done'
+        self.logger = logging.getLogger('ApprovalWorkflow')
 
         # Create directories if they don't exist
         self.pending_approval.mkdir(exist_ok=True)
         self.approved.mkdir(exist_ok=True)
         self.rejected.mkdir(exist_ok=True)
         self.done.mkdir(exist_ok=True)
+
+        # Initialize LinkedIn watcher for posting
+        self.linkedin_watcher = None
+        self._init_linkedin()
+
+    def _init_linkedin(self):
+        """Initialize LinkedIn watcher for posting capabilities"""
+        try:
+            from linkedin_watcher import LinkedInWatcher
+            self.linkedin_watcher = LinkedInWatcher(str(self.vault_path))
+            if self.linkedin_watcher.access_token:
+                self.logger.info("LinkedIn watcher initialized for posting")
+            else:
+                self.logger.warning("LinkedIn watcher in demo mode - posting disabled")
+        except ImportError as e:
+            self.logger.error(f"Could not import LinkedInWatcher: {e}")
+        except Exception as e:
+            self.logger.error(f"Error initializing LinkedIn watcher: {e}")
 
     def create_approval_request(self, action_type: str, details: Dict[str, Any]) -> Path:
         """Create an approval request file"""
@@ -158,9 +178,45 @@ Move this file to /Rejected folder.
 
     def _execute_social_post(self, details: Dict[str, Any]) -> bool:
         """Execute approved social post"""
-        print(f"Executing social post on {details['platform']} about {details['topic']}")
-        # social_media.post(details)
-        return True
+        platform = details.get('platform', '').lower()
+
+        if platform != 'linkedin':
+            self.logger.error(f"Unsupported platform: {platform}. Only 'linkedin' is supported.")
+            return False
+
+        if not self.linkedin_watcher:
+            self.logger.error("LinkedIn watcher not available")
+            return False
+
+        # Extract post details
+        content = details.get('content', '')
+        topic = details.get('topic', '')
+        image_path = details.get('image_path')
+        as_organization = details.get('as_organization', False)
+
+        # Use content if provided, otherwise fall back to topic
+        if not content and topic:
+            content = f"Exploring {topic} today. This resonated with our audience. What are your thoughts? #Business #Growth"
+        elif not content:
+            self.logger.error("No content or topic provided for social post")
+            return False
+
+        self.logger.info(f"Posting to LinkedIn: {content[:50]}... (as_organization={as_organization})")
+
+        try:
+            success = self.linkedin_watcher.post_to_linkedin(
+                content=content,
+                image_path=image_path,
+                as_organization=as_organization
+            )
+            if success:
+                self.logger.info("LinkedIn post executed successfully")
+            else:
+                self.logger.error("LinkedIn post failed")
+            return success
+        except Exception as e:
+            self.logger.error(f"Error executing LinkedIn post: {e}")
+            return False
 
 # Example usage:
 # approval_workflow = ApprovalWorkflow('/path/to/vault')

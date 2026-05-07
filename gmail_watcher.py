@@ -47,8 +47,20 @@ status: pending
         return filepath
     
 if __name__ == "__main__":
-    vault_path = "/mnt/d/Code/hackathon0/AI_Employee_Vault"
-    credentials_path = "token.json"
+    import argparse
+
+    parser = argparse.ArgumentParser(description="Gmail Watcher - MCP Service")
+    parser.add_argument('--host', default='localhost', help='Host to bind to')
+    parser.add_argument('--port', type=int, default=50052, help='Port to bind to')
+    parser.add_argument('--vault', default='/mnt/d/Code/hackathon0/AI_Employee_Vault', help='Path to vault directory')
+    parser.add_argument('--credentials', default='token.json', help='Path to Gmail credentials JSON file')
+
+    args = parser.parse_args()
+
+    vault_path = args.vault
+    credentials_path = args.credentials
 
     watcher = GmailWatcher(vault_path, credentials_path)
-    watcher.run()
+    print(f"Gmail Watcher MCP Service starting on {args.host}:{args.port}")
+    print(f"Vault: {vault_path}")
+    watcher.run_mcp_server(host=args.host, port=args.port)

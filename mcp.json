@@ -43,6 +43,20 @@
       "env": {
         "LOG_LEVEL": "INFO"
       }
+    },
+    "linkedin-watcher": {
+      "command": "python",
+      "args": [
+        "linkedin_watcher.py",
+        "--host",
+        "localhost",
+        "--port",
+        "50056"
+      ],
+      "env": {
+        "LOG_LEVEL": "INFO",
+        "VAULT_PATH": "/mnt/d/Code/hackathon0/AI_Employee_Vault"
+      }
     }
   },
   "orchestrator": {

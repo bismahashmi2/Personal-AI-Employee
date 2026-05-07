@@ -190,12 +190,21 @@ status: pending
         self.logger.info("If WhatsApp requires authentication, please run with headless=False")
 
 if __name__ == "__main__":
-    import sys
+    import argparse
 
-    if len(sys.argv) != 2:
-        print("Usage: python whatsapp_watcher.py <vault_path>")
-        sys.exit(1)
+    parser = argparse.ArgumentParser(description="WhatsApp Watcher - MCP Service")
+    parser.add_argument('--host', default='localhost', help='Host to bind to')
+    parser.add_argument('--port', type=int, default=50053, help='Port to bind to')
+    parser.add_argument('--vault', default='.', help='Path to vault directory')
+    parser.add_argument('--session', default=None, help='Path to WhatsApp session directory')
+    parser.add_argument('--interval', type=int, default=120, help='Check interval in seconds')
 
-    vault_path = sys.argv[1]
-    watcher = WhatsAppWatcher(vault_path, check_interval=120)
-    watcher.run()
+    args = parser.parse_args()
+
+    vault_path = args.vault
+    session_path = args.session
+
+    watcher = WhatsAppWatcher(vault_path, check_interval=args.interval, session_path=session_path)
+    print(f"WhatsApp Watcher MCP Service starting on {args.host}:{args.port}")
+    print(f"Vault: {vault_path}")
+    watcher.run_mcp_server(host=args.host, port=args.port)

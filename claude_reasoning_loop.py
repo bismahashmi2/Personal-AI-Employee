@@ -28,13 +28,13 @@ class ClaudeReasoningLoop:
         self.done = self.vault_path / 'Done'
         self.company_handbook = self.vault_path / 'Company_Handbook.md'
         self.use_claude_api = use_claude_api and ANTHROPIC_AVAILABLE and os.getenv('ANTHROPIC_API_KEY')
+        self.logger = logging.getLogger('ClaudeReasoningLoop')
 
         # Initialize Claude client if available
         self.claude_client = None
         if self.use_claude_api:
             try:
                 self.claude_client = Anthropic(api_key=os.getenv('ANTHROPIC_API_KEY'))
-                self.logger = logging.getLogger('ClaudeReasoningLoop')
                 self.logger.info("Claude API integration enabled")
             except Exception as e:
                 self.logger.error(f"Failed to initialize Claude client: {e}")
@@ -113,16 +113,39 @@ Return ONLY the markdown plan, no additional commentary."""
             try:
                 self.logger.info(f"Processing: {action_file.name}")
 
+                # Get action type first
+                content = action_file.read_text()
+                action_type = 'generic'
+                if content.startswith('---'):
+                    try:
+                        parts = content.split('---', 2)
+                        if len(parts) >= 3:
+                            frontmatter = parts[1]
+                            for line in frontmatter.split('\n'):
+                                if line.startswith('type:'):
+                                    action_type = line.split(':', 1)[1].strip()
+                                    break
+                    except:
+                        pass
+
                 # Generate plan using Claude API if available, otherwise template
                 if use_claude:
-                    plan = self._generate_plan_with_claude(action_file)
+                    plan = self._generate_plan_with_claude(action_file, action_type)
                 else:
-                    plan = self._create_plan_from_action(action_file)
+                    plan = self._create_plan_from_action_by_type(action_type, content)
 
                 if plan:
                     plan_path = self.plans / f'PLAN_{action_file.stem}.md'
                     plan_path.write_text(plan)
                     created_plans.append(str(plan_path))
+
+                    # For LinkedIn posts, automatically create approval request
+                    if action_type in ('linkedin_opportunity', 'linkedin_post'):
+                        opportunity = self._extract_field(content, 'opportunity') or '(trending topic)'
+                        score = self._extract_field(content, 'trend_score') or 'N/A'
+                        timestamp = int(time.time())
+                        draft_post = self._generate_linkedin_draft(opportunity, content)
+                        self._create_linkedin_approval(opportunity, draft_post, score, timestamp)
 
                     # Move original to done
                     action_file.rename(self.done / action_file.name)
@@ -132,6 +155,31 @@ Return ONLY the markdown plan, no additional commentary."""
                 self.logger.error(f"Error processing {action_file}: {e}")
 
         return created_plans
+
+    def _generate_plan_with_claude(self, action_file: Path, action_type: str) -> str:
+        """Generate a plan using Claude API"""
+        content = action_file.read_text()
+
+        # Call Claude
+        plan = self._call_claude_api(content, action_type)
+
+        if plan:
+            return plan
+        else:
+            # Fallback to template-based plan
+            self.logger.warning(f"Claude API unavailable for {action_file.name}, using template fallback")
+            return self._create_plan_from_action_by_type(action_type, content)
+
+    def _create_plan_from_action_by_type(self, action_type: str, content: str) -> str:
+        """Create a plan based on action file type"""
+        if action_type == 'email' or action_type == 'email_response':
+            return self._create_email_plan(content)
+        elif action_type == 'whatsapp' or action_type == 'whatsapp_response':
+            return self._create_whatsapp_plan(content)
+        elif action_type == 'linkedin_opportunity' or action_type == 'linkedin_post':
+            return self._create_linkedin_plan(content)
+        else:
+            return self._create_generic_plan(content)
 
     def _generate_plan_with_claude(self, action_file: Path) -> str:
         """Generate a plan using Claude API"""
@@ -287,52 +335,167 @@ Medium otherwise
         return "Within 2 hours (standard)"
 
     def _create_linkedin_plan(self, content: str) -> str:
-        """Create plan for LinkedIn opportunity (template fallback)"""
+        """Create plan for LinkedIn opportunity and auto-generate approval request"""
         opportunity = self._extract_field(content, 'opportunity') or '(trending topic)'
         score = self._extract_field(content, 'trend_score') or 'N/A'
+        timestamp = int(time.time())
+
+        # Generate draft post content
+        draft_post = self._generate_linkedin_draft(opportunity, content)
+
+        # Create approval request automatically
+        self._create_linkedin_approval(opportunity, draft_post, score, timestamp)
 
         return f"""---
 created: {time.strftime('%Y-%m-%d %H:%M:%S')}
 type: linkedin_post
-status: pending_review
+status: approval_created
 requires_approval: true
 ---
 
-# LinkedIn Content Plan
+# LinkedIn Post - Automated
 
-## Opportunity
+## Opportunity Detected
 **Topic:** {opportunity}
 **Relevance Score:** {score}
 
-## Business Angle
-How does this trend relate to our AI Employee services?
+## Action Completed
+✅ Draft post generated
+✅ Approval request created in /Pending_Approval/SOCIAL_POST_{timestamp}.md
 
-## Content Strategy
-1. Hook: Start with an insight about the trend
-2. Value: Explain how businesses can leverage this
-3. CTA: Invite discussion or offer consultation
+## Approval Required
+1. Review the draft post in /Pending_Approval/
+2. Move file to /Approved/ to publish automatically
+3. Move file to /Rejected/ to cancel
 
-## Draft Post Template
-> "{opportunity}" is trending. This presents an opportunity for SMBs to...
-
-## Hashtags to Include
-#AIAutomation #BusinessTips #DigitalTransformation
-
-## Action Steps
-- [ ] Research topic thoroughly (use Company Handbook for positioning)
-- [ ] Write draft post (3-5 paragraphs)
-- [ ] Add 3-5 relevant hashtags
-- [ ] Get approval (business content requires approval)
-- [ ] Post at optimal time (9 AM or 12 PM local time)
-- [ ] Monitor engagement for 24 hours
-
-## Requirement
-LinkedIn posting requires HUMAN APPROVAL via /Pending_Approval folder.
+## Next Steps
+- [ ] Check /Pending_Approval/ for the draft
+- [ ] Review and approve/reject
+- [ ] System will auto-post once approved
 
 ## Notes
-- Real LinkedIn API posting not implemented (see README)
-- Manually copy draft to LinkedIn or implement LinkedIn MCP server
+- Uses LinkedIn w_member_social scope (personal profile posting)
+- Post will be published via LinkedIn MCP server
+- Engagement will be monitored by LinkedInWatcher
 """
+
+    def _generate_linkedin_draft(self, opportunity: str, original_content: str) -> str:
+        """Generate a draft LinkedIn post"""
+        # Try Claude API first for better content
+        if self.use_claude_api:
+            try:
+                handbook = self._get_company_handbook()
+                prompt = f"""You are a LinkedIn content creator for a business that offers AI automation services.
+
+# Company Handbook Context:
+{handbook[:1500]}
+
+# LinkedIn Opportunity:
+{original_content}
+
+# Task:
+Write a compelling LinkedIn post about this trending topic that:
+1. Starts with an engaging hook
+2. Provides valuable insights for business owners
+3. Relates to AI automation/AI Employee services
+4. Ends with a thoughtful question to drive engagement
+5. Includes 3-5 relevant hashtags
+6. Maximum 3000 characters, keep it concise (3-4 paragraphs)
+
+# Tone:
+Professional but approachable. Business-focused. Not salesy.
+
+# Return ONLY the post text, no markdown formatting."""
+
+                response = self.claude_client.messages.create(
+                    model="claude-4-opus-20250514",
+                    max_tokens=1000,
+                    temperature=0.7,
+                    messages=[{"role": "user", "content": prompt}]
+                )
+                return response.content[0].text.strip()
+            except Exception as e:
+                self.logger.warning(f"Claude API failed for LinkedIn draft: {e}, using template")
+
+        # Template fallback
+        return f"""Exploring "{opportunity}" today.
+
+This trend is resonating with businesses, and it got me thinking about how AI automation is transforming the way we work.
+
+At our company, we're seeing more and more clients leverage AI to handle repetitive tasks, freeing up time for strategic work. The insights from trending topics like this one inform how we design our AI Employee solutions.
+
+What are your thoughts on this trend? Have you seen similar shifts in your industry?
+
+#AIAutomation #Business #DigitalTransformation #LinkedInTrends"""
+
+    def _create_linkedin_approval(self, opportunity: str, draft_post: str, score: str, timestamp: int):
+        """Create an approval request file for LinkedIn posting"""
+        pending_dir = self.vault_path / 'Pending_Approval'
+        pending_dir.mkdir(exist_ok=True)
+
+        approval_file = pending_dir / f'SOCIAL_POST_{timestamp}.md'
+
+        # Build details as JSON - this is what the system parses
+        details = {
+            'platform': 'linkedin',
+            'topic': opportunity,
+            'score': score,
+            'content': draft_post,
+            'as_organization': False  # Post to personal profile
+        }
+
+        content = f"""---
+type: approval_request
+action: social_post
+created: {time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(timestamp))}
+expires: {time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(timestamp + 604800))}
+status: pending
+---
+
+# LinkedIn Post Approval Request
+
+## Draft Post
+{draft_post}
+
+## To Approve
+Move this file to /Approved/ folder. The post will be published automatically.
+
+## To Reject
+Move this file to /Rejected/ folder.
+
+## Details
+{json.dumps(details)}
+"""
+        approval_file.write_text(content)
+        self.logger.info(f"Created LinkedIn approval request: {approval_file.name}")
+
+    def _create_plan_from_action(self, action_file: Path) -> str:
+        """Create a plan based on action file type"""
+        content = action_file.read_text()
+
+        # Extract type from frontmatter
+        action_type = 'generic'
+        if content.startswith('---'):
+            try:
+                parts = content.split('---', 2)
+                if len(parts) >= 3:
+                    frontmatter = parts[1]
+                    for line in frontmatter.split('\n'):
+                        if line.startswith('type:'):
+                            action_type = line.split(':', 1)[1].strip()
+                            break
+            except:
+                pass
+
+        # Route to appropriate plan creator
+        if action_type == 'email' or action_type == 'email_response':
+            return self._create_email_plan(content)
+        elif action_type == 'whatsapp' or action_type == 'whatsapp_response':
+            return self._create_whatsapp_plan(content)
+        elif action_type == 'linkedin_opportunity' or action_type == 'linkedin_post':
+            return self._create_linkedin_plan(content)
+        else:
+            return self._create_generic_plan(content)
 
     def _create_generic_plan(self, content: str) -> str:
         """Create generic plan for unknown action types"""

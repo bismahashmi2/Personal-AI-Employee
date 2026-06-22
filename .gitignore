@@ -28,6 +28,7 @@ pids
 # Credentials
 credentials.json
 token.json
+linkedin_token.json
 config.json
 
 # Configuration files that may contain secrets

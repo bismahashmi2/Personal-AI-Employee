@@ -73,10 +73,11 @@ class LinkedInWatcher(BaseWatcher):
 
         # Set default headers if not provided
         headers = kwargs.get('headers', {}).copy()
-        # LinkedIn v2 API only requires X-Restli-Protocol-Version header
-        # No LinkedIn-Version header needed for v2 endpoints
+        # LinkedIn API requires both version headers
         if 'X-Restli-Protocol-Version' not in headers:
             headers['X-Restli-Protocol-Version'] = '2.0.0'
+        if 'LinkedIn-Version' not in headers:
+            headers['LinkedIn-Version'] = '202405'
         kwargs['headers'] = headers
         kwargs['timeout'] = kwargs.get('timeout', 30)
 
@@ -284,6 +285,7 @@ class LinkedInWatcher(BaseWatcher):
                 'Authorization': f'Bearer {self.access_token}',
                 'Content-Type': 'application/json',
                 'X-Restli-Protocol-Version': '2.0.0',
+                'LinkedIn-Version': '202405',
             }
 
             # Step 1: Get person URN - use cached from config first, only fetch if needed
@@ -620,6 +622,7 @@ class LinkedInWatcher(BaseWatcher):
                 'Authorization': f'Bearer {self.access_token}',
                 'Content-Type': 'application/json',
                 'X-Restli-Protocol-Version': '2.0.0',
+                'LinkedIn-Version': '202405',
             }
 
             # Get person URN if needed
